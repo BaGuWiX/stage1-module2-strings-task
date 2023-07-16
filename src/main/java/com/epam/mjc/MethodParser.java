@@ -1,5 +1,11 @@
 package com.epam.mjc;
 
+
+
+import java.util.ArrayList;
+import java.util.List;
+
+
 public class MethodParser {
 
     /**
@@ -20,6 +26,44 @@ public class MethodParser {
      * @return {@link MethodSignature} object filled with parsed values from source string
      */
     public MethodSignature parseFunction(String signatureString) {
-        throw new UnsupportedOperationException("You should implement this method.");
+        // Remove leading and trailing whitespaces from the signature string
+        signatureString = signatureString.trim();
+
+        String accessModifier = "";
+        int startIndex = 0;
+        int endIndex = signatureString.indexOf(' ');
+        if (endIndex != -1) {
+            accessModifier = signatureString.substring(startIndex, endIndex);
+            signatureString = signatureString.substring(endIndex + 1).trim();
+        }
+
+        endIndex = signatureString.indexOf(' ');
+        String returnType = signatureString.substring(startIndex, endIndex);
+        signatureString = signatureString.substring(endIndex + 1).trim();
+
+        endIndex = signatureString.indexOf('(');
+        String methodName = signatureString.substring(startIndex, endIndex);
+        signatureString = signatureString.substring(endIndex).trim();
+
+        List<MethodSignature.Argument> arguments = new ArrayList<>();
+        if (signatureString.startsWith("(") && signatureString.endsWith(")")) {
+            signatureString = signatureString.substring(1, signatureString.length() - 1);
+            String[] argumentStrings = signatureString.split(",");
+            for (String argumentString : argumentStrings) {
+                argumentString = argumentString.trim();
+                String[] parts = argumentString.split(" ");
+                if (parts.length == 2) {
+                    String argumentType = parts[0];
+                    String argumentName = parts[1];
+                    MethodSignature.Argument argument = new MethodSignature.Argument(argumentType, argumentName);
+                    arguments.add(argument);
+                }
+            }
+        }
+
+        MethodSignature signature = new MethodSignature(methodName, arguments);
+        signature.setAccessModifier(accessModifier);
+        signature.setReturnType(returnType);
+        return signature;
     }
 }
